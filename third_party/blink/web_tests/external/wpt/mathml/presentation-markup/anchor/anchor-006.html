@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>MathML Anchor Reference Test: Magnetic Field of a Loop</title>
+<link rel="help" href="https://w3c.github.io/mathml-core/">
+<link rel="match" href="anchor-006-ref.html">
+<style>
+    math {
+        font-family: "Latin Modern Math", "Cambria Math", monospace;
+        font-size: 26px;
+    }
+
+    .vector-b {
+        color: #ff0000;
+    }
+</style>
+
+<p>The magnetic field equation and its hyperlinked fraction block must render identically below:</p>
+
+<main>
+    <math display="block">
+        <mrow>
+            <mover class="vector-b">
+                <mi>B</mi>
+                <mo>→</mo>
+            </mover>
+            <mo>=</mo>
+
+            <a href="https://physicsbook.gatech.edu/Magnetic_Field_of_a_Loop">
+                <mfrac>
+                    < {<msub>
+                        <mi>μ</mi>
+                        <mn>0</mn>
+                        </msub>
+                        <mi>I</mi>
+                        <msup>
+                            <mi>R</mi>
+                            <mn>2</mn>
+                        </msup>} >
+                        < {<mn>2</mn>
+                            <msup>
+                                <mrow>
+                                    <mo>(</mo>
+                                    <msup>
+                                        <mi>R</mi>
+                                        <mn>2</mn>
+                                    </msup>
+                                    <mo>+</mo>
+                                    <msup>
+                                        <mi>z</mi>
+                                        <mn>2</mn>
+                                    </msup>
+                                    <mo>)</mo>
+                                </mrow>
+                                <mrow>
+                                    <mn>3</mn>
+                                    <mo>/</mo>
+                                    <mn>2</mn>
+                                </mrow>
+                            </msup>} >
+                </mfrac>
+                <mstyle mathvariant="bold">
+                    <mi>k</mi>
+                </mstyle>
+            </a>
+        </mrow>
+    </math>
+</main>

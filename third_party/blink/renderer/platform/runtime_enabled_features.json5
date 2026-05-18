@@ -3789,6 +3789,11 @@
       status: "stable",
     },
     {
+      // Enables MathMLAnchorElement
+      name: "MathMLAnchorElement",
+      status: "test",
+    },
+    {
       name:"MeasureMemory",
       status:"stable",
     },

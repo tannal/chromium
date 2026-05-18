@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>MathML Anchor Element Deep Verification</title>
+<link rel="help" href="https://w3c.github.io/mathml-core/">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+<script src="/resources/testdriver-actions.js"></script>
+
+<main>
+    <math id="mathRoot">
+        <a id="staticLink" href="https://example.com/static" target="_blank">
+            <mtext>Click Me</mtext>
+        </a>
+    </math>
+
+    <div id="mixedRoot">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <foreignObject>
+                <math>
+                    <a id="htmlInMath" href="https://example.com/html">HTML Link</a>
+                </math>
+            </foreignObject>
+        </svg>
+    </div>
+</main>
+
+<script>
+    // --------------------------------------------------------------------
+    // Test 1: Dynamic Creation & Reflection
+    // --------------------------------------------------------------------
+    test(() => {
+        const mathNS = "http://www.w3.org/1998/Math/MathML";
+        const dynamicA = document.createElementNS(mathNS, "a");
+
+        assert_true(dynamicA instanceof MathMLAnchorElement, 
+            "The 'a' element dynamically created via createElementNS must be an instance of MathMLAnchorElement");
+
+        // Verify that setAttribute correctly reflects to the JS property
+        dynamicA.setAttribute("href", "https://example.com/dynamic");
+        assert_equals(dynamicA.href, "https://example.com/dynamic", 
+            "The href attribute set via setAttribute should be correctly reflected to the .href property");
+
+        // Verify that modifying the JS property synchronizes back to the DOM attribute
+        dynamicA.href = "https://example.com/modified";
+        assert_equals(dynamicA.getAttribute("href"), "https://example.com/modified", 
+            "Modifying the .href property should be synchronized back to the DOM attribute");
+    }, "Verify dynamic creation and bidirectional attribute reflection");
+
+    // --------------------------------------------------------------------
+    // Test 2: Namespace Isolation
+    // --------------------------------------------------------------------
+    test(() => {
+        const staticLink = document.getElementById('staticLink');
+        const htmlInMath = document.getElementById('htmlInMath');
+
+        // Check MathML anchor inside <math>
+        assert_true(staticLink instanceof MathMLAnchorElement, 
+            "The <a> element inside <math> must be an instance of MathMLAnchorElement");
+        assert_false(staticLink instanceof HTMLAnchorElement, 
+            "The <a> element inside <math> must not be an instance of HTMLAnchorElement");
+
+        // Check HTML anchor inside foreignObject
+        assert_false(htmlInMath instanceof HTMLAnchorElement, 
+            "The <a> element inside foreignObject must not be an instance of HTMLAnchorElement");
+        assert_true(htmlInMath instanceof MathMLAnchorElement, 
+            "The <a> element inside foreignObject must be an instance of MathMLAnchorElement");
+    }, "Verify strict namespace isolation and correct interface instantiation between HTML and MathML");
+
+    // --------------------------------------------------------------------
+    // Test 3: Simulated Click Behavior
+    // --------------------------------------------------------------------
+    promise_test(async (t) => {
+        const staticLink = document.getElementById('staticLink');
+        let eventTriggered = false;
+
+        const clickHandler = (e) => {
+            eventTriggered = true;
+            // Prevent actual navigation to avoid breaking the test runner
+            e.preventDefault();
+        };
+
+        staticLink.addEventListener('click', clickHandler);
+        t.add_cleanup(() => staticLink.removeEventListener('click', clickHandler));
+
+        // Use standard WPT test_driver to simulate a real physical click
+        await test_driver.click(staticLink);
+
+        assert_true(eventTriggered, 
+            "Clicking a MathMLAnchorElement should successfully fire and bubble the click event");
+    }, "Verify click event interaction and event propagation");
+
+    // --------------------------------------------------------------------
+    // Test 4: HitTest Core Verification (Hover)
+    // --------------------------------------------------------------------
+    promise_test(async (t) => {
+        const staticLink = document.getElementById('staticLink');
+
+        // Simulate real pointer movement using standard WPT actions
+        await new test_driver.Actions()
+            .pointerMove(0, 0, { origin: staticLink })
+            .send();
+
+        assert_true(staticLink.matches(':hover'), 
+            "The MathML <a> element should correctly match the :hover pseudo-class when the pointer moves over it");
+    }, "Verify that the underlying HitTestResult correctly identifies the MathML anchor element");
+</script>

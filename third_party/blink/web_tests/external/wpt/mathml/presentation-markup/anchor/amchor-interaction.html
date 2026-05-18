@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MathML Anchor Element Hover and URL Target Verification</title>
+  <link rel="help" href="https://w3c.github.io/mathml-core/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="/resources/testdriver.js"></script>
+  <script src="/resources/testdriver-vendor.js"></script>
+
+  <style>
+    main { margin: 20px; }
+    .test-box { margin-bottom: 30px; padding: 10px; border: 1px solid #eee; }
+    /* 现代化 UA 样式保护：确保指针测试时元素面积足够，防止命中面积过小导致不稳定 */
+    math, svg { font-size: 24px; min-width: 100px; min-height: 50px; }
+  </style>
+</head>
+<body>
+
+<main>
+  <div class="test-box">
+    <h3>1. MathML Anchor Test</h3>
+    <math id="mathRoot">
+      <semantics>
+        <mrow>
+          <a id="mathmlGammaLink" href="https://en.wikipedia.org/wiki/Gamma_function">
+            <mrow><mi mathvariant="normal">Γ</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow>
+          </a>
+          <mo>=</mo>
+          <a id="mathmlIntegralLink" href="https://en.wikipedia.org/wiki/Gamma_function#Main_definition">
+            <mrow>
+              <msubsup><mo>∫</mo><mn>0</mn><mrow><mo>+</mo><mo>∞</mo></mrow></msubsup>
+              <msup><mi>x</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msup>
+              <msup><mi>e</mi><mrow><mo>−</mo><mi>x</mi></mrow></msup><mi>d</mi><mi>x</mi>
+            </mrow>
+          </a>
+        </mrow>
+        <annotation encoding="TeX">\href{...}{\Gamma(t)} = \href{...}{\int dx}</annotation>
+      </semantics>
+    </math>
+  </div>
+
+  <div class="test-box">
+    <h3>2. SVG &amp; Nested MathML Anchor Test</h3>
+    <svg width="300" height="150" viewBox="0 0 300 150" id="svgRoot">
+      <a id="svgModernLink" href="https://www.example.com/modern-svg-href" target="_blank">
+        <circle cx="50" cy="50" r="20" fill="#4285F4" />
+        <text x="20" y="90" font-family="sans-serif" font-size="12">Modern SVG</text>
+      </a>
+
+      <foreignObject x="120" y="10" width="180" height="130">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <a id="linkInSVG" href="https://baidu.com">
+            <msqrt><mi>n</mi></msqrt>
+          </a>
+        </math>
+      </foreignObject>
+    </svg>
+  </div>
+</main>
+
+<script>
+  "use strict";
+
+  // 现代通用工具函数：使用标准的抽象动作序列机制移动指针
+  async function hoverOverElement(element) {
+    await test_driver.action_sequence([{
+      type: "pointer",
+      id: "pointer1",
+      parameters: { pointerType: "mouse" },
+      actions: [
+        { type: "pointerMove", origin: element, x: 0, y: 0, duration: 100 }
+      ]
+    }]);
+  }
+
+  // --------------------------------------------------------------------
+  // Test 1: MathML Hover Trigger and Href Target Validation
+  // --------------------------------------------------------------------
+  promise_test(async (t) => {
+    const mathmlLink = document.getElementById('mathmlGammaLink');
+    let pointerOverFired = false;
+
+    // 使用简洁的一键式内嵌监听器
+    mathmlLink.addEventListener('pointerover', () => { pointerOverFired = true; }, { once: true });
+
+    await hoverOverElement(mathmlLink);
+
+    assert_true(pointerOverFired, "The 'pointerover' event must be dispatched natively by Blink.");
+    assert_true(mathmlLink.matches(':hover'), "MathML anchor must dynamically match the ':hover' pseudo-class.");
+    
+    // 现代化断言：直接比对 DOM 原生反射属性，由于 .href 在 MathMLAnchorElement 上返回 USVString 接口，直接提取绝对路径或其原文本
+    const actualHref = mathmlLink.href.animVal || mathmlLink.getAttribute('href');
+    assert_equals(actualHref, "https://en.wikipedia.org/wiki/Gamma_function", "Exposed hyperlinking URL is corrupted.");
+  }, "Verify that hovering over a MathML anchor fires pointerover and resolves the correct destination URL");
+
+  // --------------------------------------------------------------------
+  // Test 2: MathML Complex Math Block Children Hover Transmission
+  // --------------------------------------------------------------------
+  promise_test(async (t) => {
+    const integralLink = document.getElementById('mathmlIntegralLink');
+
+    await hoverOverElement(integralLink);
+
+    // 重点验证 HitTest 是否能平滑穿透多层嵌套的数学标记（msubsup -> msup 等），最终冒泡传递到宿主容器 a 元素上
+    assert_true(integralLink.matches(':hover'), "The parent MathML anchor failed to capture the hovered state from deep math tokens.");
+  }, "Verify that the underlying HitTestResult bubbles up to the MathMLAnchorElement container when children tokens are targeted");
+
+  // --------------------------------------------------------------------
+  // Test 3: SVG Baseline Parity Control Test
+  // --------------------------------------------------------------------
+  promise_test(async (t) => {
+    const svgLink = document.getElementById('svgModernLink');
+
+    await hoverOverElement(svgLink);
+
+    assert_true(svgLink.matches(':hover'), "Standard SVG link anchor failed to acquire ':hover' state.");
+    const expectedSvgUrl = svgLink.href.animVal || svgLink.getAttribute('href');
+    assert_equals(expectedSvgUrl, "https://www.example.com/modern-svg-href", "SVG absolute hyperlinking routing is broken.");
+  }, "Verify SVG anchor baseline behavior for parity checkpoint");
+
+  // --------------------------------------------------------------------
+  // Test 4: Mixed Sandbox Environment (MathML inside SVG foreignObject)
+  // --------------------------------------------------------------------
+  promise_test(async (t) => {
+    const linkInSVG = document.getElementById('linkInSVG');
+
+    await hoverOverElement(linkInSVG);
+
+    // 这个测试极其关键，它能顺便测试出当你将 `<math:a>` 丢进 SVG 容器时，Blink 能否在双重命名空间混合的场景下，依旧保持 Layout 树定位正常、不引发之前那样的崩溃崩溃。
+    assert_true(linkInSVG.matches(':hover'), "MathML anchor nested deep within an SVG foreignObject failed to register hover state.");
+    assert_equals(linkInSVG.getAttribute('href'), "https://baidu.com", "Nested mixed-namespace element failed to resolve hyperlinking properties.");
+  }, "Verify MathML anchor behavior when isolated inside an SVG foreignObject boundaries");
+</script>
+
+</body>
+</html>

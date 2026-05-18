@@ -5,6 +5,8 @@
 blink_core_sources_mathml = [
   "mathml_element.cc",
   "mathml_element.h",
+  "mathml_anchor_element.cc",
+  "mathml_anchor_element.h",
   "mathml_fraction_element.cc",
   "mathml_fraction_element.h",
   "mathml_operator_element.cc",

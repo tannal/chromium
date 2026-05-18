@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>MathML: :link and :visited pseudo-classes reference</title>
+    <style>
+        main {
+            color: black;
+        }
+        .expect-unvisited {
+            color: blue;
+        }
+        .expect-visited {
+            color: purple;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <math xmlns="http://www.w3.org/1998/Math/MathML" class="expect-unvisited">
+            <a>
+                <mtext>Unvisited Link</mtext>
+            </a>
+        </math>
+
+        <math xmlns="http://www.w3.org/1998/Math/MathML" class="expect-visited">
+            <a>
+                <mtext>Visited Link</mtext>
+            </a>
+        </math>
+    </main>
+</body>
+</html>

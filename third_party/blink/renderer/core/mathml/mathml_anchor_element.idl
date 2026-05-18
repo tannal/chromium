@@ -1,0 +1,19 @@
+// Copyright 2026 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// https://w3c.github.io/mathml-core/#the-a-element
+[Exposed(Window MathMLAnchorElement)]
+interface MathMLAnchorElement : MathMLElement {
+    [CEReactions, Reflect] attribute USVString href;
+    [CEReactions, Reflect] attribute DOMString target;
+    [CEReactions, Reflect] attribute DOMString download;
+    [CEReactions, Reflect] attribute DOMString rel;
+    
+    [CEReactions, Reflect, ReflectOnly=("", "no-referrer", "no-referrer-when-downgrade", "origin", "origin-when-cross-origin", "unsafe-url")] attribute DOMString referrerpolicy;
+    
+    [PutForwards=value] readonly attribute DOMTokenList relList;
+
+    // Add the ping attribute to align with HTML/SVG anchor functionality.
+    [CEReactions, Reflect] attribute DOMString ping;
+};

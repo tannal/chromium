@@ -239,6 +239,7 @@
 #include "third_party/blink/renderer/core/layout/layout_view.h"
 #include "third_party/blink/renderer/core/layout/svg/layout_svg_root.h"
 #include "third_party/blink/renderer/core/loader/render_blocking_resource_manager.h"
+#include "third_party/blink/renderer/core/mathml/mathml_anchor_element.h"
 #include "third_party/blink/renderer/core/overscroll/overscroll_area_tracker.h"
 #include "third_party/blink/renderer/core/page/chrome_client.h"
 #include "third_party/blink/renderer/core/page/focus_controller.h"
@@ -11262,6 +11263,9 @@ KURL Element::HrefURL() const {
   }
   if (auto* svg_a = DynamicTo<SVGAElement>(*this)) {
     return svg_a->Url();
+  }
+  if (auto* mathml_a = DynamicTo<MathMLAnchorElement>(*this)) {
+    return mathml_a->Url();
   }
   return KURL();
 }

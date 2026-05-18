@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>MathML Anchor Element Basic Functionality</title>
+<link rel="help" href="https://w3c.github.io/mathml-core/">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<main>
+  <math>
+    <a id="testLink" href="https://baidu.com" target="_blank">
+      <mi>x</mi>
+    </a>
+  </math>
+</main>
+
+<script>
+test(() => {
+  const a = document.getElementById('testLink');
+  
+  // Verify correct WebIDL interface binding
+  assert_true(a instanceof MathMLAnchorElement, "The element must be instantiated as MathMLAnchorElement");
+  
+  // Verify attribute reflection
+  assert_equals(a.href, "https://baidu.com", "The href attribute must be correctly parsed and reflected");
+  
+  // Verify default User Agent stylesheet rendering rules
+  assert_equals(window.getComputedStyle(a).cursor, "pointer", "The UA stylesheet must assign a pointer cursor to the anchor");
+}, "Verify the foundational capabilities of the MathML <a> element");
+</script>

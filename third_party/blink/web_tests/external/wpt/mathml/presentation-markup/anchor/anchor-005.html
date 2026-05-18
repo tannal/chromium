@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Complex MathML Anchor Reference Test: Stirling's Approximation</title>
+<link rel="help" href="https://w3c.github.io/mathml-core/">
+<link rel="match" href="anchor-005-ref.html">
+<style>
+  math {
+    font-family: "Latin Modern Math", "Cambria Math", monospace;
+    font-size: 28px;
+  }
+</style>
+
+<p>The complex formula and its hyperlinked parts must render identically below:</p>
+
+<main>
+  <math display="block">
+    <mrow>
+      <mi>n</mi>
+      <mo>!</mo>
+      <mo>∼</mo>
+      
+      <a href="https://en.wikipedia.org/wiki/Stirling%27s_approximation#Derivation">
+        <msqrt>
+          <mfrac>
+            <mrow>
+              <mn>2</mn>
+              <mi>π</mi>
+            </mrow>
+            <mi>n</mi>
+          </mfrac>
+        </msqrt>
+      </a>
+
+      <a href="https://en.wikipedia.org/wiki/Asymptotic_analysis">
+        <msup>
+          <mrow>
+            <mo>(</mo>
+            <mfrac>
+              <mi>n</mi>
+              <mi>e</mi>
+            </mfrac>
+            <mo>)</mo>
+          </mrow>
+          <mi>n</mi>
+        </msup>
+      </a>
+    </mrow>
+  </math>
+</main>

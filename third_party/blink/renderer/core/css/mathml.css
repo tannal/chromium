@@ -147,3 +147,10 @@ munderover[accent="true" i] > :first-child {
 mmultiscripts > mprescripts ~ :nth-child(even) {
   math-shift: inherit;
 }
+
+math a:link,
+math a:-webkit-any-link {
+  cursor: pointer;
+  text-decoration: none;
+  color: -webkit-link;
+}

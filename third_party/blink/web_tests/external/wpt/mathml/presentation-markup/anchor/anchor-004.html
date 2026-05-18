@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>MathML Anchor Element Reference Test: Layout and Appearance</title>
+<link rel="help" href="https://w3c.github.io/mathml-core/">
+<link rel="match" href="anchor-004-ref.html">
+<style>
+  math {
+    font-family: "Latin Modern Math", "Cambria Math", monospace;
+    font-size: 24px;
+  }
+</style>
+
+<p>The two equations below must render identically, including the link color and underline:</p>
+
+<main>
+  <math display="block">
+    <mrow>
+      <a href="https://example.com/alpha">
+        <mi>α</mi>
+      </a>
+      <mo>+</mo>
+      <a href="https://example.com/beta">
+        <mi>β</mi>
+      </a>
+    </mrow>
+  </math>
+</main>

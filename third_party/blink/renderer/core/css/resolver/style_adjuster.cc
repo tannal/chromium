@@ -1646,6 +1646,7 @@ StyleAdjuster::ElementTypeForCache StyleAdjuster::GetElementTypeCacheKey(
     case ElementType::kMathMLTableCellElement:
     case ElementType::kMathMLTokenElement:
     case ElementType::kMathMLUnderOverElement:
+    case ElementType::kMathMLAnchorElement:
       return {ElementType::kMathMLElement};
 
     case ElementType::kSVGSVGElement:

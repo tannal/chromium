@@ -60,7 +60,7 @@ static inline const SecurityOrigin* CalculateFrameOrigin(
 
 static inline const AtomicString& LinkAttribute(const Element& element) {
   DCHECK(element.IsLink());
-  if (element.IsHTMLElement())
+  if (element.IsHTMLElement() || element.IsMathMLElement())
     return element.FastGetAttribute(html_names::kHrefAttr);
   DCHECK(element.IsSVGElement());
   return SVGURIReference::LegacyHrefString(To<SVGElement>(element));
