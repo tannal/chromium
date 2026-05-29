@@ -7,13 +7,15 @@
 
 #include "third_party/blink/renderer/core/core_export.h"
 #include "third_party/blink/renderer/core/html/rel_list.h"
+#include "third_party/blink/renderer/core/url/dom_url_utils.h"
 #include "third_party/blink/renderer/core/mathml/mathml_element.h"
 
 namespace blink {
 
 class MouseEvent;
 
-class CORE_EXPORT MathMLAnchorElement final : public MathMLElement {
+class CORE_EXPORT MathMLAnchorElement : public MathMLElement,
+                                        public DOMURLUtils {
   DEFINE_WRAPPERTYPEINFO();
 
  public:
@@ -29,7 +31,10 @@ class CORE_EXPORT MathMLAnchorElement final : public MathMLElement {
   void DefaultEventHandler(Event&) override;
   bool IsInteractiveContent() const { return true; }
 
-  KURL Url() const;
+  KURL Url() const override;
+  void SetURL(const KURL&) override;
+
+  String Input() const override;
 
   void ParseAttribute(const AttributeModificationParams&) override;
   bool IsURLAttribute(const Attribute&) const override;

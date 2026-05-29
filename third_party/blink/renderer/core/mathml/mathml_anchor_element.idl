@@ -3,17 +3,29 @@
 // found in the LICENSE file.
 
 // https://w3c.github.io/mathml-core/#the-a-element
-[Exposed(Window MathMLAnchorElement)]
+[Exposed=Window]
 interface MathMLAnchorElement : MathMLElement {
-    [CEReactions, Reflect] attribute USVString href;
-    [CEReactions, Reflect] attribute DOMString target;
-    [CEReactions, Reflect] attribute DOMString download;
-    [CEReactions, Reflect] attribute DOMString rel;
-    
-    [CEReactions, Reflect, ReflectOnly=("", "no-referrer", "no-referrer-when-downgrade", "origin", "origin-when-cross-origin", "unsafe-url")] attribute DOMString referrerpolicy;
-    
-    [PutForwards=value] readonly attribute DOMTokenList relList;
+  [CEReactions, Reflect] attribute USVString href;
+  [CEReactions, Reflect] attribute DOMString target;
+  [CEReactions, Reflect] attribute DOMString download;
+  [CEReactions, Reflect] attribute DOMString ping;
+  [CEReactions, Reflect] attribute DOMString rel;
 
-    // Add the ping attribute to align with HTML/SVG anchor functionality.
-    [CEReactions, Reflect] attribute DOMString ping;
+  // https://www.w3.org/TR/referrer-policy/#referrer-policies
+  [CEReactions, Reflect, ReflectOnly=("", "no-referrer", "no-referrer-when-downgrade", "same-origin", "origin", "strict-origin", "origin-when-cross-origin", "strict-origin-when-cross-origin", "unsafe-url")] attribute DOMString referrerpolicy;
 };
+
+interface mixin HyperlinkElementUtils {
+  readonly attribute USVString origin;
+  [CEReactions] attribute USVString protocol;
+  [CEReactions] attribute USVString username;
+  [CEReactions] attribute USVString password;
+  [CEReactions] attribute USVString host;
+  [CEReactions] attribute USVString hostname;
+  [CEReactions] attribute USVString port;
+  [CEReactions] attribute USVString pathname;
+  [CEReactions] attribute USVString search;
+  [CEReactions] attribute USVString hash;
+};
+
+MathMLAnchorElement includes HyperlinkElementUtils;

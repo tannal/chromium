@@ -71,6 +71,14 @@ KURL MathMLAnchorElement::Url() const {
       StripLeadingAndTrailingHtmlSpaces(FastGetAttribute(html_names::kHrefAttr)));
 }
 
+void MathMLAnchorElement::SetURL(const KURL& url) {
+  setAttribute(html_names::kHrefAttr, AtomicString(url.GetString()));
+}
+
+String MathMLAnchorElement::Input() const {
+  return Url();
+}
+
 bool MathMLAnchorElement::HasActivationBehavior() const {
   return IsLink();
 }
