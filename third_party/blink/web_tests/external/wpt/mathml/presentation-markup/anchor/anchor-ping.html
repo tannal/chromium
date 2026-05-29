@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MathML anchor ping attribute functionality</title>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="/resource-timing/resources/observe-entry.js"></script>
+</head>
+<body>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <a id="pingAnchor" href="#" ping="/xhr/resources/delay.py?ms=100">Test MathML Link</a>
+</math>
+
+<script>
+  "use strict";
+
+  // ==================== Test Case 1: Static tag click fires a single ping ====================
+  promise_test(async t => {
+      const anchor = document.getElementById('pingAnchor');
+      const pingUrl = '/xhr/resources/delay.py?ms=100';
+
+      // Simulate mouse click event
+      const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+      });
+
+      anchor.dispatchEvent(clickEvent);
+
+      // Intercept and observe if the ping request was sent using the Resource Timing API
+      const entry = await observe_entry(pingUrl);
+      assert_equals(entry.initiatorType, 'ping', "The initiator type must be 'ping'");
+      assert_greater_than(entry.duration, 99, "The request duration should match the expected delay");
+  }, "MathML anchor with ping attribute should send ping on click");
+
+
+  // ==================== Test Case 2: Dynamically created MathML node fires multiple pings ====================
+  promise_test(async t => {
+      const math = document.querySelector('math');
+      // Create element using the official MathML namespace
+      const anchor = document.createElementNS('http://www.w3.org/1998/Math/MathML', 'a');
+      const pingUrl = '/xhr/resources/delay.py?ms=200&id=multiple';
+
+      anchor.setAttribute('href', '#');
+      // Test space-separated multiple URL auditing requests
+      anchor.setAttribute('ping', pingUrl + ' ' + pingUrl + '2');
+      anchor.textContent = 'Multiple MathML Ping Link';
+      math.appendChild(anchor);
+
+      const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+      });
+
+      anchor.dispatchEvent(clickEvent);
+
+      // Asynchronously wait for and verify both concurrent ping requests
+      const entry1 = await observe_entry(pingUrl);
+      const entry2 = await observe_entry(pingUrl + '2');
+
+      assert_equals(entry1.initiatorType, 'ping', "The first request must be a ping");
+      assert_equals(entry2.initiatorType, 'ping', "The second request must be a ping");
+  }, "MathML anchor with multiple ping URLs should send multiple pings");
+
+
+  // ==================== Test Case 3: Verify the IDL reflection attributes of the MathML element ====================
+  test(function() {
+      // Check whether reading/writing the ping attribute via JS reflection (Getter/Setter) works properly
+      const anchor = document.createElementNS('http://www.w3.org/1998/Math/MathML', 'a');
+      anchor.setAttribute('ping', 'https://example.com/ping1 https://example.com/ping2');
+
+      // Verify reading content via element.ping (DOMString reflection)
+      assert_equals(anchor.ping, 'https://example.com/ping1 https://example.com/ping2', "The IDL getter should read the content attribute");
+
+      // Verify that writing content via element.ping synchronizes back to the DOM content attribute
+      anchor.ping = 'https://example.com/ping3';
+      assert_equals(anchor.getAttribute('ping'), 'https://example.com/ping3', "The DOM content attribute should update synchronously");
+      assert_equals(anchor.ping, 'https://example.com/ping3', "The IDL setter should take effect");
+  }, "MathML anchor ping attribute should be settable via ping IDL attribute");
+</script>
+
+</body>
+</html>

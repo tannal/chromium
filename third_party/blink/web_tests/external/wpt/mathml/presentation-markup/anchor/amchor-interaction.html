@@ -12,7 +12,7 @@
   <style>
     main { margin: 20px; }
     .test-box { margin-bottom: 30px; padding: 10px; border: 1px solid #eee; }
-    /* 现代化 UA 样式保护：确保指针测试时元素面积足够，防止命中面积过小导致不稳定 */
+    /* Ensure the elements are large enough for pointer events to reliably target them */
     math, svg { font-size: 24px; min-width: 100px; min-height: 50px; }
   </style>
 </head>
@@ -63,7 +63,7 @@
 <script>
   "use strict";
 
-  // 现代通用工具函数：使用标准的抽象动作序列机制移动指针
+  // Utility function using standard action sequence to hover over an element
   async function hoverOverElement(element) {
     await test_driver.action_sequence([{
       type: "pointer",
@@ -82,7 +82,6 @@
     const mathmlLink = document.getElementById('mathmlGammaLink');
     let pointerOverFired = false;
 
-    // 使用简洁的一键式内嵌监听器
     mathmlLink.addEventListener('pointerover', () => { pointerOverFired = true; }, { once: true });
 
     await hoverOverElement(mathmlLink);
@@ -90,7 +89,6 @@
     assert_true(pointerOverFired, "The 'pointerover' event must be dispatched natively by Blink.");
     assert_true(mathmlLink.matches(':hover'), "MathML anchor must dynamically match the ':hover' pseudo-class.");
     
-    // 现代化断言：直接比对 DOM 原生反射属性，由于 .href 在 MathMLAnchorElement 上返回 USVString 接口，直接提取绝对路径或其原文本
     const actualHref = mathmlLink.href.animVal || mathmlLink.getAttribute('href');
     assert_equals(actualHref, "https://en.wikipedia.org/wiki/Gamma_function", "Exposed hyperlinking URL is corrupted.");
   }, "Verify that hovering over a MathML anchor fires pointerover and resolves the correct destination URL");
@@ -103,7 +101,7 @@
 
     await hoverOverElement(integralLink);
 
-    // 重点验证 HitTest 是否能平滑穿透多层嵌套的数学标记（msubsup -> msup 等），最终冒泡传递到宿主容器 a 元素上
+    // Verify if HitTestResult correctly bubbles up to the parent anchor through multiple layout layers
     assert_true(integralLink.matches(':hover'), "The parent MathML anchor failed to capture the hovered state from deep math tokens.");
   }, "Verify that the underlying HitTestResult bubbles up to the MathMLAnchorElement container when children tokens are targeted");
 
@@ -128,7 +126,7 @@
 
     await hoverOverElement(linkInSVG);
 
-    // 这个测试极其关键，它能顺便测试出当你将 `<math:a>` 丢进 SVG 容器时，Blink 能否在双重命名空间混合的场景下，依旧保持 Layout 树定位正常、不引发之前那样的崩溃崩溃。
+    // Ensure layout and targeting remain robust when mixed-namespace contexts are nested
     assert_true(linkInSVG.matches(':hover'), "MathML anchor nested deep within an SVG foreignObject failed to register hover state.");
     assert_equals(linkInSVG.getAttribute('href'), "https://baidu.com", "Nested mixed-namespace element failed to resolve hyperlinking properties.");
   }, "Verify MathML anchor behavior when isolated inside an SVG foreignObject boundaries");
