@@ -15,6 +15,7 @@ interface MathMLAnchorElement : MathMLElement {
   [CEReactions, Reflect, ReflectOnly=("", "no-referrer", "no-referrer-when-downgrade", "same-origin", "origin", "strict-origin", "origin-when-cross-origin", "strict-origin-when-cross-origin", "unsafe-url")] attribute DOMString referrerpolicy;
 };
 
+// https://html.spec.whatwg.org/#api-for-hyperlink-elements
 interface mixin HyperlinkElementUtils {
   readonly attribute USVString origin;
   [CEReactions] attribute USVString protocol;
@@ -26,6 +27,9 @@ interface mixin HyperlinkElementUtils {
   [CEReactions] attribute USVString pathname;
   [CEReactions] attribute USVString search;
   [CEReactions] attribute USVString hash;
+
+  [CEReactions, Reflect] attribute DOMString hreflang;
+  [CEReactions, Reflect] attribute DOMString type;
 };
 
 MathMLAnchorElement includes HyperlinkElementUtils;
