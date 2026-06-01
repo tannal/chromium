@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 // https://w3c.github.io/mathml-core/#the-a-element
-[Exposed=Window]
+[Exposed(Window MathMLAnchorElement)]
 interface MathMLAnchorElement : MathMLElement {
   [CEReactions, Reflect] attribute USVString href;
   [CEReactions, Reflect] attribute DOMString target;

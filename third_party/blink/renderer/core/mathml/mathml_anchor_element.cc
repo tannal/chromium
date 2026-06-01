@@ -5,20 +5,18 @@
 #include "third_party/blink/renderer/core/mathml/mathml_anchor_element.h"
 
 #include "third_party/blink/renderer/core/dom/document.h"
-#include "third_party/blink/renderer/core/events/mouse_event.h"
-#include "third_party/blink/renderer/core/html/anchor_element_utils.h"
 #include "third_party/blink/renderer/core/events/keyboard_event.h"
+#include "third_party/blink/renderer/core/events/mouse_event.h"
 #include "third_party/blink/renderer/core/frame/local_dom_window.h"
 #include "third_party/blink/renderer/core/frame/local_frame.h"
-
-#include "third_party/blink/renderer/core/page/frame_tree.h"
-#include "third_party/blink/renderer/core/loader/navigation_policy.h"
-
-#include "third_party/blink/renderer/core/mathml_names.h"
-#include "third_party/blink/renderer/core/layout/mathml/layout_mathml_block.h"
+#include "third_party/blink/renderer/core/html/anchor_element_utils.h"
 #include "third_party/blink/renderer/core/html/parser/html_parser_idioms.h"
 #include "third_party/blink/renderer/core/html_names.h"
+#include "third_party/blink/renderer/core/layout/mathml/layout_mathml_block.h"
 #include "third_party/blink/renderer/core/loader/frame_load_request.h"
+#include "third_party/blink/renderer/core/loader/navigation_policy.h"
+#include "third_party/blink/renderer/core/mathml_names.h"
+#include "third_party/blink/renderer/core/page/frame_tree.h"
 #include "third_party/blink/renderer/platform/weborigin/security_origin.h"
 
 namespace blink {
@@ -39,7 +37,8 @@ void MathMLAnchorElement::Trace(Visitor* visitor) const {
 
 LayoutObject* MathMLAnchorElement::CreateLayoutObject(
     const ComputedStyle& style) {
-  return MathMLElement::CreateLayoutObject(style);
+  return style.IsDisplayMath() ? MakeGarbageCollected<LayoutMathMLBlock>(this)
+                               : MathMLElement::CreateLayoutObject(style);
 }
 
 void MathMLAnchorElement::ParseAttribute(
@@ -67,8 +66,8 @@ bool MathMLAnchorElement::IsURLAttribute(const Attribute& attribute) const {
 }
 
 KURL MathMLAnchorElement::Url() const {
-  return GetDocument().CompleteURL(
-      StripLeadingAndTrailingHtmlSpaces(FastGetAttribute(html_names::kHrefAttr)));
+  return GetDocument().CompleteURL(StripLeadingAndTrailingHtmlSpaces(
+      FastGetAttribute(html_names::kHrefAttr)));
 }
 
 void MathMLAnchorElement::SetURL(const KURL& url) {
@@ -107,11 +106,12 @@ void MathMLAnchorElement::HandleClick(MouseEvent& event) {
     return;
   }
 
-  const KURL& completed_url = GetDocument().CompleteURL(
-      StripLeadingAndTrailingHtmlSpaces(FastGetAttribute(html_names::kHrefAttr)));
+  const KURL& completed_url =
+      GetDocument().CompleteURL(StripLeadingAndTrailingHtmlSpaces(
+          FastGetAttribute(html_names::kHrefAttr)));
 
-  AnchorElementUtils::SendPings(
-      completed_url, GetDocument(), FastGetAttribute(html_names::kPingAttr));
+  AnchorElementUtils::SendPings(completed_url, GetDocument(),
+                                FastGetAttribute(html_names::kPingAttr));
 
   ResourceRequest request(completed_url);
   AnchorElementUtils::HandleReferrerPolicyAttribute(
@@ -129,8 +129,7 @@ void MathMLAnchorElement::HandleClick(MouseEvent& event) {
   if (FastHasAttribute(html_names::kDownloadAttr) &&
       navigation_policy != kNavigationPolicyDownload &&
       window->GetSecurityOrigin()->CanReadContent(completed_url)) {
-    const String download_attr =
-        FastGetAttribute(html_names::kDownloadAttr);
+    const String download_attr = FastGetAttribute(html_names::kDownloadAttr);
     AnchorElementUtils::HandleDownloadAttribute(
         this, download_attr, completed_url, window, event.isTrusted(),
         std::move(request));

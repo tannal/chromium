@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MathML 'a' element: :visited privacy security restrictions</title>
+<link rel="help" href="https://w3c.github.io/mathml-core/#security-considerations">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<style>
+  #mathLink {
+    color: rgb(0, 0, 255);
+  }
+  #mathLink:visited {
+    color: rgb(255, 0, 0) !important;
+  }
+</style>
+</head>
+<body>
+
+<div id="log"></div>
+
+<div id="test-container">
+  <math>
+    <a id="mathLink" href="">
+      <mi>x</mi>
+    </a>
+  </math>
+</div>
+
+<script>
+test(function() {
+  const mathLink = document.getElementById('mathLink');
+  
+  const computedColor = window.getComputedStyle(mathLink).color;
+
+  assert_equals(computedColor, "rgb(0, 0, 255)", 
+    "The computed style of :visited MathML 'a' element must be masked to protect user history privacy.");
+
+}, "MathML 'a' element with :visited selector must return the unvisited (:link) style to JavaScript API.");
+</script>
+
+</body>
+</html>

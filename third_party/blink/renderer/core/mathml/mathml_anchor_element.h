@@ -7,8 +7,8 @@
 
 #include "third_party/blink/renderer/core/core_export.h"
 #include "third_party/blink/renderer/core/html/rel_list.h"
-#include "third_party/blink/renderer/core/url/dom_url_utils.h"
 #include "third_party/blink/renderer/core/mathml/mathml_element.h"
+#include "third_party/blink/renderer/core/url/dom_url_utils.h"
 
 namespace blink {
 
